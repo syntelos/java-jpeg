@@ -1,0 +1,60 @@
+ISO/IEC 10918-1 : 1993(E)
+Table B.1 – Marker code assignments
+
+Start Of Frame markers, non-differential, Huffman coding
+
+X’FFC0’  SOF_0   Baseline DCT
+X’FFC1’  SOF_1   Extended sequential DCT
+X’FFC2’  SOF_2   Progressive DCT
+X’FFC3’  SOF_3   Lossless (sequential)
+
+Start Of Frame markers, differential, Huffman coding
+
+X’FFC5’  SOF_5   Differential sequential DCT
+X’FFC6’  SOF_6   Differential progressive DCT
+X’FFC7’  SOF_7   Differential lossless (sequential)
+
+Start Of Frame markers, non-differential, arithmetic coding
+
+X’FFC8’  JPG     Reserved for JPEG extensions
+X’FFC9’  SOF_9   Extended sequential DCT
+X’FFCA’  SOF_10  Progressive DCT
+X’FFCB’  SOF_11  Lossless (sequential)
+
+Start Of Frame markers, differential, arithmetic coding
+
+X’FFCD’  SOF_13  Differential sequential DCT
+X’FFCE’  SOF_14  Differential progressive DCT
+X’FFCF’  SOF_15  Differential lossless (sequential)
+
+Huffman table specification
+
+X’FFC4’  DHT     Define Huffman table(s)
+
+Arithmetic coding conditioning specification
+
+X’FFCC’  DAC     Define arithmetic coding conditioning(s)
+
+Restart interval termination
+
+X’FFD0’ - X’FFD7’   RST_m*   Restart with modulo 8 count “m”
+
+Other markers
+
+X’FFD8’  SOI*    Start of image
+X’FFD9’  EOI*    End of image
+X’FFDA’  SOS     Start of scan
+X’FFDB’  DQT     Define quantization table(s)
+X’FFDC’  DNL     Define number of lines
+X’FFDD’  DRI     Define restart interval
+X’FFDE’  DHP     Define hierarchical progression
+X’FFDF’  EXP     Expand reference component(s)
+X’FFE0’ - X’FFEF’   APP_n     Reserved for application segments
+X’FFF0’ - X’FFFD’   JPG_n     Reserved for JPEG extensions
+X’FFFE’  COM     Comment
+
+Reserved markers
+
+X’FF01’  TEM*    For temporary private use in arithmetic coding
+X’FF02’ - X’FFBF’    RES      Reserved
+

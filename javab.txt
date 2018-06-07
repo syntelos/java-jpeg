@@ -1,0 +1,7 @@
+# 
+# Configuration parameters recognized by 'javab'.
+# See https://github.com/syntelos/sh-javab
+#
+name=java-jpeg
+version=1
+main-class=syntelos.exif.Main
