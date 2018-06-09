@@ -73,6 +73,8 @@ public final class Scan
 		}
 	    }
 	    else {
+		state = 0;
+
 		buffer.write(ch);
 	    }
 	}

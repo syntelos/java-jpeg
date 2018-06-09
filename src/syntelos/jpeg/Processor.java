@@ -71,6 +71,7 @@ public final class Processor {
      */
     public static enum Operator {
 	c      (Type.Literal),
+	i      (Type.Literal),
 	l      (Type.Literal),
 	p      (Type.Literal),
 	n      (Type.Literal),
@@ -332,7 +333,10 @@ public final class Processor {
 
 	    switch(this.operator){
 	    case c:
-		out.printf("%6d/%6d%6s%n",st.cursor,this.jpeg.size(),st.lock);
+		out.printf("%6d/%6d %6s%n",st.cursor,this.jpeg.size(),st.lock);
+		return true;
+	    case i:
+		out.printf("%6d/%6d %30s%n",this.in.offset,this.in.length,this.in.file.getPath());
 		return true;
 	    case l:
 		st.lock = (!st.lock);
@@ -475,7 +479,7 @@ public final class Processor {
 		return true;
 	    case cursor:
 		st.cursor = this.start;
-		out.printf("%6d/%6d%6s%n",st.cursor,this.jpeg.size(),st.lock);
+		out.printf("%6d/%6d %6s%n",st.cursor,this.jpeg.size(),st.lock);
 		return true;
 	    default:
 		err.printf("Unimplemented operator '%s'.%n",this.operator);
