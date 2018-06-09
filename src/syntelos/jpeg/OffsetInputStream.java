@@ -70,7 +70,7 @@ public class OffsetInputStream
 
 	    this.offset += 1;
 
-	    return this.ubu[this.ubu_x++];
+	    return (this.ubu[this.ubu_x++] & 0xff);
 	}
 	else {
 
