@@ -1,0 +1,7 @@
+
+The first trick in converting JPEG specs to code was the inclusion of the 
+segment length bytes within the segment length figure.
+
+The second trick was in realizing that the image scan did not have a marker
+structure, but was delimited by markers.
+
