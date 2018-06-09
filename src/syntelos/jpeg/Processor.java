@@ -1,5 +1,5 @@
 /*
- * EXIF Block I/O
+ * JPEG Block I/O
  * Copyright (C) 2018, John Pritchard, Syntelos
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -15,14 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-package syntelos.exif;
+package syntelos.jpeg;
 
 import java.io.DataInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.StringTokenizer;
 
 /**
- * Process a little "ed" style language over EXIF data for inspection.
+ * Process a little "ed" style language over JPEG data for inspection.
  */
 public final class Processor {
     /**
@@ -37,7 +39,19 @@ public final class Processor {
 	 * Work on one segment
 	 */
 	public boolean lock;
+	/**
+	 * Input is valid
+	 */
+	public final boolean valid;
 
+
+	/**
+	 * @param valid Input is valid
+	 */
+	public State(boolean valid){
+	    super();
+	    this.valid = valid;
+	}
     }
     /**
      * Operator classes.
@@ -61,6 +75,7 @@ public final class Processor {
 	p      (Type.Literal),
 	n      (Type.Literal),
 	q      (Type.Literal),
+	w      (Type.Literal),
 	help   (Type.Figurative),
 	cursor (Type.Figurative),
 	end    (Type.Figurative);
@@ -150,7 +165,7 @@ public final class Processor {
 
     private OffsetInputStream in;
 
-    private EXIF ex;
+    private JPEG jpeg;
 
     public final String strin;
 
@@ -163,14 +178,14 @@ public final class Processor {
     public final int end;
 
 
-    public Processor(String ln, State st, OffsetInputStream in, EXIF ex){
+    public Processor(String ln, State st, OffsetInputStream in, JPEG jpeg){
 	super();
 	/*
 	 * 
 	 */
 	this.strin = ln;
 	this.in = in;
-	this.ex = ex;
+	this.jpeg = jpeg;
 	/*
 	 * lex
 	 */
@@ -211,14 +226,14 @@ public final class Processor {
 		    }
 		    else if (st.lock){
 
-			Segment s = ex.get(st.cursor);
+			Component c = jpeg.get(st.cursor);
 
-			if (end > s.length){
+			if (end > c.length()){
 
 			    invalid = true;
 			}
 		    }
-		    else if (end > ex.size()){
+		    else if (end > jpeg.size()){
 
 			invalid = true;
 		    }
@@ -227,15 +242,15 @@ public final class Processor {
 
 		    if (st.lock){
 
-			Segment s = ex.get(st.cursor);
+			Component c = jpeg.get(st.cursor);
 
-			end = s.length;
+			end = c.length();
 			start = (end-1);
 
 			invalid = (0 > start);
 		    }
 		    else {
-			end = ex.size();
+			end = jpeg.size();
 			start = (end-1);
 
 			invalid = (0 > start);
@@ -261,18 +276,18 @@ public final class Processor {
 			if (Operator.end == b){
 
 			    if (st.lock){
-				Segment s = ex.get(st.cursor);
+				Component c = jpeg.get(st.cursor);
 
-				end = s.length;
+				end = c.length();
 			    }
 			    else {
-				end = ex.size();
+				end = jpeg.size();
 			    }
 			}
 			else {
 			    end = ((Integer)b).intValue();
 
-			    invalid = (end > ex.size());
+			    invalid = (end > jpeg.size());
 			}
 
 			if (0 > start || start >= end){
@@ -317,23 +332,23 @@ public final class Processor {
 
 	    switch(this.operator){
 	    case c:
-		out.printf("%6d/%6d%6s%n",st.cursor,this.ex.size(),st.lock);
+		out.printf("%6d/%6d%6s%n",st.cursor,this.jpeg.size(),st.lock);
 		return true;
 	    case l:
 		st.lock = (!st.lock);
-		out.printf("%6d/%6d%6s%n",st.cursor,this.ex.size(),st.lock);
+		out.printf("%6d/%6d%6s%n",st.cursor,this.jpeg.size(),st.lock);
 		return true;
 	    case p:
 		if (st.lock){
 
-		    Segment s = this.ex.get(st.cursor);
-		    out.println(s);
+		    Component c = this.jpeg.get(st.cursor);
+		    out.println(c);
 
 		    if (-1 < this.start && this.start < this.end){
 
 			for (int cc = this.start; cc < this.end; cc++){
 
-			    byte b = s.data[cc];
+			    byte b = c.get(cc);
 
 			    if (0x20 < b && 0x7f > b){
 
@@ -348,9 +363,9 @@ public final class Processor {
 		    }
 		    else {
 
-			for (int cc = 0; cc < s.length; cc++){
+			for (int cc = 0; cc < c.length(); cc++){
 
-			    byte b = s.data[cc];
+			    byte b = c.get(cc);
 
 			    if (0x20 < b && 0x7f > b){
 
@@ -368,28 +383,28 @@ public final class Processor {
 
 		    for (int cc = this.start; cc < this.end; cc++){
 
-			Segment s = this.ex.get(cc);
+			Component c = this.jpeg.get(cc);
 
-			out.printf("%20s%n",s);
+			out.printf("%20s%n",c);
 		    }
 		}
 		else {
 
-		    Segment s = this.ex.get(st.cursor);
+		    Component c = this.jpeg.get(st.cursor);
 
-		    out.printf("%20s%n",s);
+		    out.printf("%20s%n",c);
 		}
 		return true;
 	    case n:
 		if (st.lock){
-		    Segment s = this.ex.get(st.cursor);
-		    out.println(s);
+		    Component c = this.jpeg.get(st.cursor);
+		    out.println(c);
 
 		    if (-1 < this.start && this.start < this.end){
 
 			for (int cc = this.start; cc < this.end; cc++){
 
-			    byte b = s.data[cc];
+			    byte b = c.get(cc);
 
 			    out.printf(" %02X",b);
 			}
@@ -397,9 +412,9 @@ public final class Processor {
 		    }
 		    else {
 
-			for (int cc = 0; cc < s.length; cc++){
+			for (int cc = 0; cc < c.length(); cc++){
 
-			    byte b = s.data[cc];
+			    byte b = c.get(cc);
 
 			    out.printf(" %02X",b);
 			}
@@ -410,35 +425,57 @@ public final class Processor {
 
 		    for (int cc = this.start; cc < this.end; cc++){
 
-			Segment s = this.ex.get(cc);
+			Component c = this.jpeg.get(cc);
 
-			out.printf("%6d %20s%n",cc,s);
+			out.printf("%6d %20s%n",cc,c);
 		    }
 		}
 		else {
 
-		    Segment s = this.ex.get(st.cursor);
+		    Component c = this.jpeg.get(st.cursor);
 
-		    out.printf("%6d %20s%n",st.cursor,s);
+		    out.printf("%6d %20s%n",st.cursor,c);
 		}
 		return true;
 	    case q:
 		return false;
+	    case w:
+		if (st.valid){
+		    File file = this.in.file;
+		    try {
+			long count = jpeg.write(file);
+
+			out.printf("%9d %20s%n",count,file.getPath());
+		    }
+		    catch (IOException iox){
+			String msg = String.format("Error writing to file '%s'.",file);
+
+			err.println(msg);
+			iox.printStackTrace();
+			err.println(msg);
+		    }
+		}
+		else {
+		    err.println("Unable to output from invalid input state.");
+		}
+		return true;
 	    case help:
 		out.println("Help");
 		out.println();
 		out.printf(HELP,"?","This message.");
 		out.printf(HELP,"#","Set cursor by index number '#' (from zero).");
-		out.printf(HELP,"c","Print (cursor/count) in EXIF.");
+		out.printf(HELP,"c","Print (cursor/count) in JPEG.");
 		out.printf(HELP,"p","Print segment at cursor.");
 		out.printf(HELP,"n","Print segment at cursor with index.");
 		out.printf(HELP,"#,#p","Print segment range.");
 		out.printf(HELP,"#,#n","Print segment range with indeces.");
+		out.printf(HELP,"w","Overwrite input file.");
+		out.printf(HELP,"q","Quit.");
 		out.println();
 		return true;
 	    case cursor:
 		st.cursor = this.start;
-		out.printf("%6d/%6d%6s%n",st.cursor,this.ex.size(),st.lock);
+		out.printf("%6d/%6d%6s%n",st.cursor,this.jpeg.size(),st.lock);
 		return true;
 	    default:
 		err.printf("Unimplemented operator '%s'.%n",this.operator);

@@ -1,5 +1,5 @@
 /*
- * EXIF Block I/O
+ * JPEG Block I/O
  * Copyright (C) 2018, John Pritchard, Syntelos
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-package syntelos.exif;
+package syntelos.jpeg;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -25,7 +25,7 @@ import static java.lang.System.out;
 import static java.lang.System.err;
 
 /**
- * {@link EXIF} driver.
+ * {@link JPEG} driver.
  */
 public final class Main {
 
@@ -35,7 +35,7 @@ public final class Main {
     private static void usage(){
 	err.println("Synopsis");
 	err.println();
-	err.println("    syntelos.exif.Main [-] <file.jpg>");
+	err.println("    syntelos.jpeg.Main [-] <file.jpg>");
 	err.println();
 	err.println("Description");
 	err.println();
@@ -53,7 +53,7 @@ public final class Main {
 	File fin = null;
 	boolean interactive = false;
 
-	EXIF ex = new EXIF();
+	JPEG jpeg = new JPEG();
 
 	boolean nominal = true;
 
@@ -90,9 +90,7 @@ public final class Main {
 		    try {
 			in = new OffsetInputStream(fin);
 
-			ex.read(in);
-
-			ex.println(out);
+			jpeg.read(in);
 		    }
 		    catch (Exception exc){
 			exc.printStackTrace();
@@ -117,11 +115,11 @@ public final class Main {
 		    String ln;
 		    try {
 			out.print("? ");
-			Processor.State ps = new Processor.State();
+			Processor.State ps = new Processor.State(nominal);
 
 			while (null != (ln = lin.readLine())){
 
-			    Processor p = new Processor(ln,ps,in,ex);
+			    Processor p = new Processor(ln,ps,in,jpeg);
 
 			    err.println(p);
 
@@ -143,7 +141,7 @@ public final class Main {
 		}
 		else if (nominal){
 
-		    ex.println(out);
+		    jpeg.println(out);
 
 		    System.exit(0);
 		}

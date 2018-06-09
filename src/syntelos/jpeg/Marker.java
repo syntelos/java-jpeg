@@ -1,5 +1,5 @@
 /*
- * EXIF Block I/O
+ * JPEG Block I/O
  * Copyright (C) 2018, John Pritchard, Syntelos
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -15,17 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-package syntelos.exif;
+package syntelos.jpeg;
 
 /**
  * 
  */
 public enum Marker {
-    /*
-     * [syntelos package inventions]
-     */
-    NUL(0x00,"Null",true),
-    PAD(0xFF,"Marker prefix and padding character",true),
     /*
      * Start Of Frame markers, non-differential, Huffman coding
      */
@@ -311,31 +306,32 @@ public enum Marker {
     RES_BF(0xBF,"Reserved");
 
 
+    private final static String ToString(Marker m){
 
-    public final int start, end;
+	return String.format("%s (%s) {0xFF,0x%02X}",m.name(),m.description,m.code);
+    }
+
+
+    public final int code;
 
     public final boolean solitary;
 
     public final String description;
 
+    public final String string;
 
-    Marker(int start, String desc){
-	this.start = start;
-	this.end = start;
+
+    Marker(int code, String desc){
+	this.code = code;
 	this.solitary = false;
 	this.description = desc;
+	this.string = ToString(this);
     }
-    Marker(int start, int end, String desc){
-	this.start = start;
-	this.end = end;
-	this.solitary = false;
-	this.description = desc;
-    }
-    Marker(int start, String desc, boolean solitary){
-	this.start = start;
-	this.end = start;
+    Marker(int code, String desc, boolean solitary){
+	this.code = code;
 	this.solitary = solitary;
 	this.description = desc;
+	this.string = ToString(this);
     }
 
 
@@ -343,7 +339,7 @@ public enum Marker {
      * @return Is reserved (<code>RES</code>)
      */
     public boolean is_reserved(){
-	switch(this.start){
+	switch(this.code){
 	case 0x02:
 	case 0x03:
 	case 0x04:
@@ -545,7 +541,7 @@ public enum Marker {
      * @return Is restart (<code>RST</code>)
      */
     public boolean is_restart(){
-	switch(this.start){
+	switch(this.code){
 
 	case 0xD0:
 	case 0xD1:
@@ -565,7 +561,7 @@ public enum Marker {
      * Restart (<code>RST</code>) parameter value
      */
     public int p_restart(){
-	switch(this.start){
+	switch(this.code){
 
 	case 0xD0:
 	    return 1;
@@ -592,7 +588,7 @@ public enum Marker {
      * @return Is <code>APP</code> 
      */
     public boolean is_app(){
-	switch(this.start){
+	switch(this.code){
 
 	case 0xE0:
 	case 0xE1:
@@ -620,7 +616,7 @@ public enum Marker {
      * <code>APP</code> parameter value
      */
     public int p_app(){
-	switch(this.start){
+	switch(this.code){
 
 	case 0xE0:
 	    return 0;
@@ -663,7 +659,7 @@ public enum Marker {
      * @return Is <code>JPEG</code> 
      */
     public boolean is_jpg(){
-	switch(this.start){
+	switch(this.code){
 
 	case 0xF0:
 	case 0xF1:
@@ -689,7 +685,7 @@ public enum Marker {
      * <code>JPEG</code> extension number
      */
     public int p_jpg(){
-	switch(this.start){
+	switch(this.code){
 
 	case 0xF0:
 	    return 1;
@@ -724,9 +720,16 @@ public enum Marker {
 	    throw new UnsupportedOperationException(this.toString());
 	}
     }
+    public byte[] toByteArray(){
 
+	return new byte[]{
+
+	    (byte)0xff,
+	    (byte)this.code
+	};
+    }
     public String toString(){
-	return name();
+	return this.string;
     }
 
     public final static Marker valueOf(int m){
@@ -868,13 +871,6 @@ public enum Marker {
 	     */
 	case 0x01:
 	    return Marker.TEM;
-	    /*
-	     * SOFTWARE PACKAGE ADD
-	     */
-	case 0x00:
-	    return Marker.NUL;
-	case 0xFF:
-	    return Marker.PAD;
 	    /*
 	     * RESERVED
 	     */

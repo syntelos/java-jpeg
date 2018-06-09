@@ -1,5 +1,5 @@
 /*
- * EXIF Block I/O
+ * JPEG Block I/O
  * Copyright (C) 2018, John Pritchard, Syntelos
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -15,11 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-package syntelos.exif;
+package syntelos.jpeg;
 
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 
 import static java.lang.System.err;
@@ -27,11 +30,11 @@ import static java.lang.System.err;
 /**
  * 
  */
-public final class EXIF
-    extends java.util.ArrayList<Segment>
+public final class JPEG
+    extends java.util.ArrayList<Component>
 {
 
-    public EXIF(){
+    public JPEG(){
 	super();
     }
 
@@ -39,20 +42,53 @@ public final class EXIF
     public void read(OffsetInputStream in)
 	throws IOException
     {
-	try {
-	    while (true){
+	while (true){
 
-		this.add(new Segment(in));
+	    Segment s = new Segment(in);
+
+	    this.add(s);
+
+	    if (Marker.SOS == s.marker){
+
+		Scan f = new Scan(in);
+
+		this.add(f);
+
+		Segment e = new Segment(in);
+
+		this.add(e);
+
+		break;
 	    }
 	}
-	catch (EOFException normal){
+    }
+    public long write(File file)
+	throws IOException
+    {
+	FileOutputStream out = new FileOutputStream(file);
+	try {
+	    return this.write(out);
 	}
+	finally {
+	    out.close();
+	}
+    }
+    public long write(OutputStream out)
+	throws IOException
+    {
+	long count = 0;
+
+	for (Component c : this){
+
+	    count += c.write(out);
+	}
+	return count;
     }
     public void println(PrintStream out){
 
-	for (Segment s : this){
+	for (Component c : this){
 
-	    s.println(out);
+	    c.println(out);
 	}
     }
     public String toString(){
@@ -60,9 +96,9 @@ public final class EXIF
 	{
 	    strbuf.append('[');
 	    {
-		for (Segment s : this){
+		for (Component c : this){
 
-		    strbuf.append(s);
+		    strbuf.append(c);
 		}
 	    }
 	    strbuf.append(']');

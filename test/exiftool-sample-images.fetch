@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ -f jpeg-test-vectors.flist ]&&[ -f jpeg-test-vectors.src ]
+then
+  src=$(cat jpeg-test-vectors.src | head -n 1 )
+  for name in $(cat jpeg-test-vectors.flist)
+  do
+
+    echo "wget ${src}/${name}"
+  done
+  exit 0
+else
+  cat<<EOF>&2
+$0 error, supporting files 'jpeg-test-vectors.flist' and 
+          'jpeg-test-vectors.src' not found.
+EOF
+  exit 1
+fi

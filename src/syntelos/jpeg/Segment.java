@@ -1,5 +1,5 @@
 /*
- * EXIF Block I/O
+ * JPEG Block I/O
  * Copyright (C) 2018, John Pritchard, Syntelos
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -15,17 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
-package syntelos.exif;
+package syntelos.jpeg;
 
 import java.io.EOFException;
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 
 /**
  * Lexical analysis list node.
  */
-public final class Segment {
+public final class Segment
+    extends Component
+{
 
     /**
      * Representation of the two byte segment class identity.
@@ -34,15 +37,15 @@ public final class Segment {
     /**
      * Size of segment, including count and excluding marker.
      */
-    public final int stride;
+    private final int stride;
     /**
      * Size of data payload, excluding count and marker.
      */
-    public final int length;
+    private final int length;
     /**
      * 
      */
-    public final byte[] data;
+    private final byte[] data;
 
 
     /**
@@ -53,6 +56,8 @@ public final class Segment {
     Segment(OffsetInputStream in)
 	throws IOException
     {
+	super(in);
+
 	int ch = in.read();
 
 	if (0xff == ch){
@@ -78,10 +83,10 @@ public final class Segment {
 		    this.stride = count;
 		    this.length = (count-2);
 
-		    byte[] data = new byte[count];
+		    byte[] data = new byte[length];
 		    {
 			int ofs = 0;
-			int rem = count;
+			int rem = length;
 			int red = 0;
 			while (0 < rem && -1 < (red = in.read(data,ofs,rem))){
 
@@ -90,7 +95,7 @@ public final class Segment {
 			}
 
 			if (0 < rem){
-			    throw new IllegalStateException(String.format("Failed to complete read '%d/%d' from '(%d - %d)/%d'",rem,count,in.offset,start,(in.length-1)));
+			    throw new IllegalStateException(String.format("Failed to complete read '%d/%d' from '(%d - %d)/%d'",rem,length,in.offset,start,(in.length-1)));
 			}
 		    }
 		    this.data = data;
@@ -102,16 +107,43 @@ public final class Segment {
 	}
 	else if (0 > ch){
 	    /*
-	     * Normal termination of EXIF construction.
+	     * Normal termination of JPEG construction.
 	     */
 	    throw new EOFException();
 	}
 	else {
-	    throw new IllegalStateException(String.format("Unrecognized input '%d' at '%s'.",ch,in));
+	    throw new IllegalStateException(String.format("Expected '0xFF' not '0x%02X' at '%s'.",ch,in.toString().trim()));
 	}
     }
 
 
+    public Marker marker(){
+	return this.marker;
+    }
+    public int length(){
+	return this.length;
+    }
+    public byte get(int x){
+	return this.data[x];
+    }
+    public long write(OutputStream out)
+	throws IOException
+    {
+	out.write(0xFF);
+	out.write(this.marker.code);
+	if (!this.marker.solitary){
+	    int a = ((this.length & 0xFF00)>>8);
+	    int b = (this.length & 0xFF);
+	    out.write(a);
+	    out.write(b);
+	    out.write(this.data,0,this.length);
+
+	    return (2+this.stride);
+	}
+	else {
+	    return (2);
+	}
+    }
     public void println(PrintStream out){
 
 	out.printf("%s\t%d%n",this.marker,this.length);
@@ -119,13 +151,15 @@ public final class Segment {
     public String toString(){
 	StringBuilder strbuf = new StringBuilder();
 	{
-	    strbuf.append('[');
-	    {
-		strbuf.append(this.marker);
+	    strbuf.append(this.marker);
+
+	    if (!this.marker.solitary){
+		strbuf.append('[');
+		strbuf.append(this.offset);
 		strbuf.append(':');
 		strbuf.append(this.length);
+		strbuf.append(']');
 	    }
-	    strbuf.append(']');
 	}
 	return strbuf.toString();
     }

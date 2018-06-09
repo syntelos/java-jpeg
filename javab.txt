@@ -4,4 +4,4 @@
 #
 name=java-jpeg
 version=1
-main-class=syntelos.exif.Main
+main-class=syntelos.jpeg.Main

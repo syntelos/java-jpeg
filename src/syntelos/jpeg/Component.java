@@ -15,3 +15,41 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  */
+package syntelos.jpeg;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+
+/**
+ * 
+ */
+public abstract class Component {
+
+    /**
+     * Input location of component before reading.
+     */
+    public final long offset;
+
+
+    /**
+     * This constructor shall not read from the input stream,
+     * therefore it declares no exception.
+     */
+    Component(OffsetInputStream in){
+	super();
+
+	this.offset = in.offset;
+    }
+
+
+    public abstract int length();
+
+    public abstract byte get(int x);
+
+    public abstract long write(OutputStream o) throws IOException;
+
+    public abstract void println(PrintStream p);
+
+    public abstract String toString();
+}
