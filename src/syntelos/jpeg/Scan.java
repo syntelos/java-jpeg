@@ -97,6 +97,12 @@ public final class Scan
     public byte get(int x){
 	return this.data[x];
     }
+    public boolean is_app(){
+	return false;
+    }
+    public String tag(){
+	return null;
+    }
     public long write(OutputStream out)
 	throws IOException
     {

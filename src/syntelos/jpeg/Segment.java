@@ -17,6 +17,7 @@
  */
 package syntelos.jpeg;
 
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.InputStream;
 import java.io.IOException;
@@ -26,7 +27,7 @@ import java.io.PrintStream;
 /**
  * Lexical analysis list node.
  */
-public final class Segment
+public class Segment
     extends Component
 {
 
@@ -41,13 +42,27 @@ public final class Segment
     /**
      * Size of data payload, excluding count and marker.
      */
-    private final int length;
+    protected final int length;
     /**
      * 
      */
-    private final byte[] data;
+    protected final byte[] data;
+    /**
+     * 
+     */
+    private transient String _tag;
 
 
+    /**
+     * Copy constructor
+     */
+    protected Segment(Segment copy){
+	super(copy);
+	this.marker = copy.marker;
+	this.stride = copy.stride;
+	this.length = copy.length;
+	this.data = copy.data;
+    }
     /**
      * Used from {@link JPEG} to read the marker type, segment length,
      * and segment body.  The segment marker prefix
@@ -126,14 +141,49 @@ public final class Segment
     public byte get(int x){
 	return this.data[x];
     }
+    public boolean is_app(){
+
+	return this.marker.is_app();
+    }
+    public String tag(){
+
+	if (null != this._tag){
+
+	    return this._tag;
+	}
+	else if (this.marker.is_app()){
+
+	    ByteArrayOutputStream buf = new ByteArrayOutputStream();
+	    for (int cc = 0; cc < this.length; cc++){
+
+		int ch = (this.data[cc] & 0xFF);
+		if (0 == ch){
+		    break;
+		}
+		else {
+
+		    buf.write(ch);
+		}
+	    }
+
+	    byte[] b = buf.toByteArray();
+	    if (null != b){
+
+		this._tag = new String(b,0,0,b.length);
+
+		return this._tag;
+	    }
+	}
+	return null;
+    }
     public long write(OutputStream out)
 	throws IOException
     {
 	out.write(0xFF);
 	out.write(this.marker.code);
 	if (!this.marker.solitary){
-	    int a = ((this.length & 0xFF00)>>8);
-	    int b = (this.length & 0xFF);
+	    int a = ((this.stride & 0xFF00)>>8);
+	    int b = (this.stride & 0xFF);
 	    out.write(a);
 	    out.write(b);
 	    out.write(this.data,0,this.length);
@@ -146,7 +196,7 @@ public final class Segment
     }
     public void println(PrintStream out){
 
-	out.printf("%s\t%d%n",this.marker,this.length);
+	out.println(this);
     }
     public String toString(){
 	StringBuilder strbuf = new StringBuilder();

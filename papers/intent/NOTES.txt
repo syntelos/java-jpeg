@@ -1,4 +1,6 @@
 
-It shouldn't be rare and tedious to deal with image metadata, 
-rather, it's rare and tedious to deal with image specifications.
+It shouldn't be rare and tedious to deal with image metadata. 
+
+It's always good to have another experience report on an
+important specification like JPEG.
 

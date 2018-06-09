@@ -192,131 +192,136 @@ public final class Processor {
 	 */
 	Object[] lex = Processor.Operator.lexer(ln);
 	int lexn = lex.length;
-	/*
-	 * parse
-	 */
 	boolean invalid = false;
 	int start = -1, end = -1;
 	Operator k = null;
-	int kx = (lexn-1);
-	Object le = lex[kx];
 
-	if (le instanceof Operator){
-
-	    k = (Operator)le;
-
+	if (0 < lexn){
 	    /*
-	     * expr = ( K | aK | a,bK )
-	     * lexn = { 1,   2,     4 }
+	     * parse
 	     */
-	    Object a,z,b;
+	    int kx = (lexn-1);
+	    Object le = lex[kx];
 
-	    switch(lexn){
-	    case 1:
-		break;
-	    case 2:
-		a = lex[0];
-		if (a instanceof Integer){
+	    if (le instanceof Operator){
 
-		    start = ((Integer)a).intValue();
-		    end = (start+1);
+		k = (Operator)le;
 
-		    if (0 > start || start >= end){
+		/*
+		 * expr = ( K | aK | a,bK )
+		 * lexn = { 1,   2,     4 }
+		 */
+		Object a,z,b;
 
-			invalid = true;
-		    }
-		    else if (st.lock){
-
-			Component c = jpeg.get(st.cursor);
-
-			if (end > c.length()){
-
-			    invalid = true;
-			}
-		    }
-		    else if (end > jpeg.size()){
-
-			invalid = true;
-		    }
-		}
-		else if (Operator.end == a){
-
-		    if (st.lock){
-
-			Component c = jpeg.get(st.cursor);
-
-			end = c.length();
-			start = (end-1);
-
-			invalid = (0 > start);
-		    }
-		    else {
-			end = jpeg.size();
-			start = (end-1);
-
-			invalid = (0 > start);
-		    }
-		}
-		else {
-
-		    invalid = true;
-		}
-		break;
-	    case 4:
-		a = lex[0];
-		z = lex[1];
-		b = lex[2];
-		if (a instanceof Integer &&
-		    z instanceof Character &&
-		    (b instanceof Integer || Operator.end == b))
-		{
-		    if (',' == ((Character)z).charValue()){
+		switch(lexn){
+		case 1:
+		    break;
+		case 2:
+		    a = lex[0];
+		    if (a instanceof Integer){
 
 			start = ((Integer)a).intValue();
-
-			if (Operator.end == b){
-
-			    if (st.lock){
-				Component c = jpeg.get(st.cursor);
-
-				end = c.length();
-			    }
-			    else {
-				end = jpeg.size();
-			    }
-			}
-			else {
-			    end = ((Integer)b).intValue();
-
-			    invalid = (end > jpeg.size());
-			}
+			end = (start+1);
 
 			if (0 > start || start >= end){
 
 			    invalid = true;
 			}
+			else if (st.lock){
+
+			    Component c = jpeg.get(st.cursor);
+
+			    if (end > c.length()){
+
+				invalid = true;
+			    }
+			}
+			else if (end > jpeg.size()){
+
+			    invalid = true;
+			}
+		    }
+		    else if (Operator.end == a){
+
+			if (st.lock){
+
+			    Component c = jpeg.get(st.cursor);
+
+			    end = c.length();
+			    start = (end-1);
+
+			    invalid = (0 > start);
+			}
+			else {
+			    end = jpeg.size();
+			    start = (end-1);
+
+			    invalid = (0 > start);
+			}
 		    }
 		    else {
 
 			invalid = true;
 		    }
-		}
-		else {
+		    break;
+		case 4:
+		    a = lex[0];
+		    z = lex[1];
+		    b = lex[2];
+		    if (a instanceof Integer &&
+			z instanceof Character &&
+			(b instanceof Integer || Operator.end == b))
+			{
+			    if (',' == ((Character)z).charValue()){
+
+				start = ((Integer)a).intValue();
+
+				if (Operator.end == b){
+
+				    if (st.lock){
+					Component c = jpeg.get(st.cursor);
+
+					end = c.length();
+				    }
+				    else {
+					end = jpeg.size();
+				    }
+				}
+				else {
+				    end = ((Integer)b).intValue();
+
+				    invalid = (end > jpeg.size());
+				}
+
+				if (0 > start || start >= end){
+
+				    invalid = true;
+				}
+			    }
+			    else {
+
+				invalid = true;
+			    }
+			}
+		    else {
+
+			invalid = true;
+		    }
+		    break;
+		default:
 
 		    invalid = true;
+		    break;
 		}
-		break;
-	    default:
+	    }
+	    else {
 
 		invalid = true;
-		break;
 	    }
 	}
 	else {
-
 	    invalid = true;
 	}
-
 
 	this.valid = (!invalid);
 	this.operator = k;

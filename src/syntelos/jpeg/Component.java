@@ -33,6 +33,14 @@ public abstract class Component {
 
 
     /**
+     * Copy constructor
+     */
+    protected Component(Component copy){
+	super();
+
+	this.offset = copy.offset;
+    }
+    /**
      * This constructor shall not read from the input stream,
      * therefore it declares no exception.
      */
@@ -46,6 +54,14 @@ public abstract class Component {
     public abstract int length();
 
     public abstract byte get(int x);
+    /**
+     * Has an <code>APP</code> marker.
+     */
+    public abstract boolean is_app();
+    /**
+     * Names a class in package <code>"syntelos.jpeg.app"</code>.
+     */
+    public abstract String tag();
 
     public abstract long write(OutputStream o) throws IOException;
 

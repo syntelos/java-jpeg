@@ -43,11 +43,28 @@ public final class JPEG
 	throws IOException
     {
 	while (true){
-
+	    /*
+	     * SEGMENTS
+	     */
 	    Segment s = new Segment(in);
 
-	    this.add(s);
+	    if (s.is_app()){
 
+		Application a = Application.instantiate(s);
+		if (null != a){
+
+		    this.add(a);
+		}
+		else {
+		    this.add(s);
+		}
+	    }
+	    else {
+		this.add(s);
+	    }
+	    /*
+	     * SCAN
+	     */
 	    if (Marker.SOS == s.marker){
 
 		Scan f = new Scan(in);
