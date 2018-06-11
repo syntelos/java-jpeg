@@ -67,5 +67,9 @@ public abstract class Component {
 
     public abstract void println(PrintStream p);
 
+    public abstract void print_p(PrintStream out, int start, int end);
+
+    public abstract void print_n(PrintStream out, int start, int end);
+
     public abstract String toString();
 }

@@ -38,15 +38,16 @@ public class Segment
     /**
      * Size of segment, including count and excluding marker.
      */
-    private final int stride;
+    protected int stride;
     /**
      * Size of data payload, excluding count and marker.
      */
-    protected final int length;
+    protected int length;
     /**
-     * 
+     * Data payload binary, not including the {@link #stride "count"}
+     * size of the data payload binary.
      */
-    protected final byte[] data;
+    protected byte[] data;
     /**
      * 
      */
@@ -197,6 +198,66 @@ public class Segment
     public void println(PrintStream out){
 
 	out.println(this);
+    }
+    public void print_p(PrintStream out, int start, int end){
+
+	if (-1 < start && start < end){
+
+	    for (int cc = start; cc < end; cc++){
+
+		byte b = this.data[cc];
+
+		if (0x20 < b && 0x7f > b){
+
+		    out.printf(" %2c",b);
+		}
+		else {
+
+		    out.printf(" %02X",b);
+		}
+	    }
+	    out.println();
+	}
+	else {
+
+	    for (int cc = 0; cc < this.length; cc++){
+
+		byte b = this.data[cc];
+
+		if (0x20 < b && 0x7f > b){
+
+		    out.printf(" %2c",b);
+		}
+		else {
+
+		    out.printf(" %02X",b);
+		}
+	    }
+	    out.println();
+	}
+    }
+    public void print_n(PrintStream out, int start, int end){
+
+	if (-1 < start && start < end){
+
+	    for (int cc = start; cc < end; cc++){
+
+		byte b = this.data[cc];
+
+		out.printf(" %02X",b);
+	    }
+	    out.println();
+	}
+	else {
+
+	    for (int cc = 0; cc < this.length; cc++){
+
+		byte b = this.data[cc];
+
+		out.printf(" %02X",b);
+	    }
+	    out.println();
+	}
     }
     public String toString(){
 	StringBuilder strbuf = new StringBuilder();

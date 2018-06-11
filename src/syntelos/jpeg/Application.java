@@ -23,7 +23,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Application segment
+ * An application segment is constructed by copying a segment.  The
+ * application segment is constructed immediately after the segment
+ * has been read, and replaces the segment in the {@link JPEG} list of
+ * {@link Component Components}.
+ * 
+ * A subclass knows how to handle the content of the application
+ * segment.  Its constructor parses the segment for structure as
+ * permits inspection and editing.
  */
 public class Application
     extends Segment
@@ -55,13 +62,9 @@ public class Application
 		    if (null != map){
 
 			cn = (PP+map);
-
-			System.err.printf("[%s -> %s = %s]%n",tag,map,cn);
 		    }
 		    else {
 			cn = (PP+tag);
-
-			System.err.printf("[%s = %s]%n",tag,cn);
 		    }
 		}
 

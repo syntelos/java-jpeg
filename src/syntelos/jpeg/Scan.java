@@ -114,6 +114,66 @@ public final class Scan
 
 	p.println(this.toString());
     }
+    public void print_p(PrintStream out, int start, int end){
+
+	if (-1 < start && start < end){
+
+	    for (int cc = start; cc < end; cc++){
+
+		byte b = this.data[cc];
+
+		if (0x20 < b && 0x7f > b){
+
+		    out.printf(" %2c",b);
+		}
+		else {
+
+		    out.printf(" %02X",b);
+		}
+	    }
+	    out.println();
+	}
+	else {
+
+	    for (int cc = 0; cc < this.length; cc++){
+
+		byte b = this.data[cc];
+
+		if (0x20 < b && 0x7f > b){
+
+		    out.printf(" %2c",b);
+		}
+		else {
+
+		    out.printf(" %02X",b);
+		}
+	    }
+	    out.println();
+	}
+    }
+    public void print_n(PrintStream out, int start, int end){
+
+	if (-1 < start && start < end){
+
+	    for (int cc = start; cc < end; cc++){
+
+		byte b = this.data[cc];
+
+		out.printf(" %02X",b);
+	    }
+	    out.println();
+	}
+	else {
+
+	    for (int cc = 0; cc < this.length; cc++){
+
+		byte b = this.data[cc];
+
+		out.printf(" %02X",b);
+	    }
+	    out.println();
+	}
+    }
     public String toString(){
 	return "<SCAN> ["+this.length+"]";
     }

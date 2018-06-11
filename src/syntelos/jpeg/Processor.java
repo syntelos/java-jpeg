@@ -353,40 +353,7 @@ public final class Processor {
 		    Component c = this.jpeg.get(st.cursor);
 		    out.println(c);
 
-		    if (-1 < this.start && this.start < this.end){
-
-			for (int cc = this.start; cc < this.end; cc++){
-
-			    byte b = c.get(cc);
-
-			    if (0x20 < b && 0x7f > b){
-
-				out.printf(" %2c",b);
-			    }
-			    else {
-
-				out.printf(" %02X",b);
-			    }
-			}
-			out.println();
-		    }
-		    else {
-
-			for (int cc = 0; cc < c.length(); cc++){
-
-			    byte b = c.get(cc);
-
-			    if (0x20 < b && 0x7f > b){
-
-				out.printf(" %2c",b);
-			    }
-			    else {
-
-				out.printf(" %02X",b);
-			    }
-			}
-			out.println();
-		    }
+		    c.print_p(out,this.start,this.end);
 		}
 		else if (-1 < this.start && this.start < this.end){
 
@@ -409,26 +376,7 @@ public final class Processor {
 		    Component c = this.jpeg.get(st.cursor);
 		    out.println(c);
 
-		    if (-1 < this.start && this.start < this.end){
-
-			for (int cc = this.start; cc < this.end; cc++){
-
-			    byte b = c.get(cc);
-
-			    out.printf(" %02X",b);
-			}
-			out.println();
-		    }
-		    else {
-
-			for (int cc = 0; cc < c.length(); cc++){
-
-			    byte b = c.get(cc);
-
-			    out.printf(" %02X",b);
-			}
-			out.println();
-		    }
+		    c.print_n(out,this.start,this.end);
 		}
 		else if (-1 < this.start && this.start < this.end){
 
