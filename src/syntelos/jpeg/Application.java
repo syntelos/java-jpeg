@@ -77,28 +77,29 @@ public class Application
 		    return (T)ctor.newInstance(source);
 		}
 		catch (ClassNotFoundException x){
+
 		    return null;
 		}
 		catch (ClassCastException x){
-		    return null;
+		    throw new IllegalStateException(cn,x);
 		}
 		catch (NoSuchMethodException x){
-		    return null;
+		    throw new IllegalStateException(cn,x);
 		}
 		catch (SecurityException x){
-		    return null;
+		    throw new IllegalStateException(cn,x);
 		}
 		catch (InstantiationException x){
-		    return null;
+		    throw new IllegalStateException(cn,x);
 		}
 		catch (IllegalAccessException x){
-		    return null;
+		    throw new IllegalStateException(cn,x);
 		}
 		catch (IllegalArgumentException x){
-		    return null;
+		    throw new IllegalStateException(cn,x);
 		}
 		catch (InvocationTargetException x){
-		    return null;
+		    throw new IllegalStateException(cn,x);
 		}
 	    }
 	}
