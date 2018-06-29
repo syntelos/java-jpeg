@@ -1,0 +1,5 @@
+0x1:InteroperabilityIndex
+0x2:InteroperabilityVersion
+0x1000:RelatedImageFileFormat
+0x1001:RelatedImageWidth
+0x1002:RelatedImageLength
