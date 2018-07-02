@@ -74,7 +74,6 @@ public final class Processor {
 	i      (Type.Literal),
 	l      (Type.Literal),
 	p      (Type.Literal),
-	n      (Type.Literal),
 	q      (Type.Literal),
 	w      (Type.Literal),
 	help   (Type.Figurative),
@@ -350,33 +349,21 @@ public final class Processor {
 	    case p:
 		if (st.lock){
 
-		    Component c = this.jpeg.get(st.cursor);
-		    out.println(c);
+		    if (-1 < this.start && this.start < this.end){
 
-		    c.print_p(out,this.start,this.end);
-		}
-		else if (-1 < this.start && this.start < this.end){
+			for (int cc = this.start; cc < this.end; cc++){
 
-		    for (int cc = this.start; cc < this.end; cc++){
+			    Component c = this.jpeg.get(cc);
 
-			Component c = this.jpeg.get(cc);
-
-			out.printf("%20s%n",c);
+			    c.println(out);
+			}
 		    }
-		}
-		else {
+		    else {
 
-		    Component c = this.jpeg.get(st.cursor);
+			Component c = this.jpeg.get(st.cursor);
 
-		    out.printf("%20s%n",c);
-		}
-		return true;
-	    case n:
-		if (st.lock){
-		    Component c = this.jpeg.get(st.cursor);
-		    out.println(c);
-
-		    c.print_n(out,this.start,this.end);
+			c.println(out);
+		    }
 		}
 		else if (-1 < this.start && this.start < this.end){
 

@@ -31,15 +31,7 @@ import java.io.PrintStream;
 public final class Scan
     extends Component
 {
-
-    /**
-     * Size of data payload
-     */
     public final int length;
-    /**
-     * 
-     */
-    public final byte[] data;
 
 
     /**
@@ -50,10 +42,11 @@ public final class Scan
     {
 	super(in);
 
-	ByteArrayOutputStream buffer = new ByteArrayOutputStream(in.available());
+	super.optimism(in.available());
 
-	int state = 0;
+	boolean mark = false;
 	int ch;
+
 	while (true){
 
 	    ch = in.read();
@@ -61,118 +54,35 @@ public final class Scan
 	    if (0 > ch){
 		throw new EOFException();
 	    }
-	    else if (0xFF == ch || 0xD9 == ch){
+	    else if (0xFF == ch && (!mark)){
 
-		state += 1;
+		mark = true;
+	    }
+	    else if (0xD9 == ch && mark){
 
-		if (2 == state){
+		in.unread(Marker.EOI.toByteArray());
 
-		    in.unread(Marker.EOI.toByteArray());
-
-		    break;
-		}
+		break;
 	    }
 	    else {
-		state = 0;
+		if (mark){
 
-		buffer.write(ch);
+		    mark = false;
+		}
+
+		super.write(ch);
 	    }
 	}
-
-	if (0 < buffer.size()){
-
-	    this.data = buffer.toByteArray();
-	    this.length = this.data.length;
-	}
-	else {
-	    this.data = new byte[0];
-	    this.length = 0;
-	}
+	super.reset();
+	this.length = super.available();
     }
 
 
-    public int length(){
-	return this.length;
-    }
-    public byte get(int x){
-	return this.data[x];
-    }
     public boolean is_app(){
 	return false;
     }
     public String tag(){
 	return null;
-    }
-    public long write(OutputStream out)
-	throws IOException
-    {
-	out.write(this.data,0,this.length);
-
-	return this.length;
-    }
-    public void println(PrintStream p){
-
-	p.println(this.toString());
-    }
-    public void print_p(PrintStream out, int start, int end){
-
-	if (-1 < start && start < end){
-
-	    for (int cc = start; cc < end; cc++){
-
-		byte b = this.data[cc];
-
-		if (0x20 < b && 0x7f > b){
-
-		    out.printf(" %2c",b);
-		}
-		else {
-
-		    out.printf(" %02X",b);
-		}
-	    }
-	    out.println();
-	}
-	else {
-
-	    for (int cc = 0; cc < this.length; cc++){
-
-		byte b = this.data[cc];
-
-		if (0x20 < b && 0x7f > b){
-
-		    out.printf(" %2c",b);
-		}
-		else {
-
-		    out.printf(" %02X",b);
-		}
-	    }
-	    out.println();
-	}
-    }
-    public void print_n(PrintStream out, int start, int end){
-
-	if (-1 < start && start < end){
-
-	    for (int cc = start; cc < end; cc++){
-
-		byte b = this.data[cc];
-
-		out.printf(" %02X",b);
-	    }
-	    out.println();
-	}
-	else {
-
-	    for (int cc = 0; cc < this.length; cc++){
-
-		byte b = this.data[cc];
-
-		out.printf(" %02X",b);
-	    }
-	    out.println();
-	}
     }
     public String toString(){
 	return "<SCAN> ["+this.length+"]";

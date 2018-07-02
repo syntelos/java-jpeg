@@ -50,12 +50,18 @@ public final class JPEG
 
 	    if (s.is_app()){
 
+		System.err.printf("APP ? %s%n",s.tag());
+
 		Application a = Application.instantiate(s);
 		if (null != a){
+
+		    System.err.printf("APP + %s%n",a);
 
 		    this.add(a);
 		}
 		else {
+		    System.err.printf("APP - %s%n",s.tag());
+
 		    this.add(s);
 		}
 	    }
@@ -67,13 +73,13 @@ public final class JPEG
 	     */
 	    if (Marker.SOS == s.marker){
 
-		Scan f = new Scan(in);
+		Scan scan = new Scan(in);
 
-		this.add(f);
+		this.add(scan);
 
-		Segment e = new Segment(in);
+		Segment eoi = new Segment(in);
 
-		this.add(e);
+		this.add(eoi);
 
 		break;
 	    }
@@ -102,10 +108,11 @@ public final class JPEG
 	return count;
     }
     public void println(PrintStream out){
-
+	int cc = 0;
 	for (Component c : this){
 
-	    c.println(out);
+	    out.printf("%6d %20s%n",cc,c);
+	    cc += 1;
 	}
     }
     public String toString(){

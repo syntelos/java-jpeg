@@ -18,6 +18,11 @@
 package syntelos.jpeg.app;
 
 import syntelos.jpeg.Segment;
+import syntelos.jpeg.tiff.TIFF;
+import syntelos.rabu.Endian;
+import syntelos.rabu.Window;
+
+import java.io.PrintStream;
 
 /**
  * 
@@ -25,80 +30,20 @@ import syntelos.jpeg.Segment;
 public class Exif
     extends syntelos.jpeg.Application
 {
+
     /**
-     * 
+     * JPEG APP segment data offsets.
      */
-    public static enum Endian {
-	/**
-	 * Little endian integers
-	 */
-	II,
-	/**
-	 * Big endian integers
-	 */
-	MM;
-
-
-	public int int16(byte[] da, int of){
-
-	    int a = (da[of++] & 0xFF);
-	    int b = (da[of++] & 0xFF);
-
-	    switch(this){
-	    case II:
-		return ((b<<8)|(a));
-	    case MM:
-		return ((a<<8)|(b));
-	    default:
-		throw new IllegalStateException(name());
-	    }
-	}
-	public int int32(byte[] da, int of){
-
-	    int a = (da[of++] & 0xFF);
-	    int b = (da[of++] & 0xFF);
-	    int c = (da[of++] & 0xFF);
-	    int d = (da[of++] & 0xFF);
-
-	    switch(this){
-	    case II:
-		return ((d<<24)|(c<<16)|(b<<8)|(a));
-	    case MM:
-		return ((a<<24)|(b<<16)|(c<<8)|(d));
-	    default:
-		throw new IllegalStateException(name());
-	    }
-	}
-    }
-    /**
-     * Segment data offsets.
-     */
-    public static enum APPT {
-	TAG (0),
-	NUL (4);
-
-	public final int offset;
-
-	APPT(int ofs){
-	    this.offset = ofs;
-	}
-
-	public int offset(int delta){
-	    return (this.offset + delta);
-	}
-    }
-    /**
-     * Segment data offsets.
-     */
-    public static enum TIFF {
-	ENDIAN     (6),
-	VALIDATION (8),
-	OFS_IFD_0 (10);
+    public static enum JAPP {
+	TAG     (0),
+	NULL    (4),
+	TIFF    (6),
+	ENDIAN  (6);
 
 
 	public final int offset;
 
-	TIFF(int ofs){
+	JAPP(int ofs){
 	    this.offset = ofs;
 	}
 
@@ -109,9 +54,9 @@ public class Exif
 
 
 
-    protected Endian endian;
+    protected final Endian endian;
 
-    protected int ifd_0;
+    protected TIFF tiff;
 
 
     public Exif(Segment copy){
@@ -119,41 +64,44 @@ public class Exif
 	/*
 	 * /END/ <JPEG APP MARKER HEADER> (OFS 5)
 	 */
-	if (0x0 == data[APPT.NUL.offset(0)] && 0x0 == data[APPT.NUL.offset(1)]){
+	if (0x0 == get(JAPP.NULL.offset(0)) && 0x0 == get(JAPP.NULL.offset(1))){
 	    /*
 	     * /BEGIN/ <EMBEDDED TIFF FILE HEADER> (JPEG/APP/PL OFS 6) (TIFF OFS 0)
 	     */
-	    if (0x49 == data[TIFF.ENDIAN.offset(0)] && 0x49 == data[TIFF.ENDIAN.offset(1)]){
+	    if (0x49 == get(JAPP.ENDIAN.offset(0)) && 0x49 == get(JAPP.ENDIAN.offset(1))){
 
-		this.endian = Endian.II;
+		this.endian = Endian.LE;
 	    }
-	    else if (0x4D == data[TIFF.ENDIAN.offset(0)] && 0x4D == data[TIFF.ENDIAN.offset(1)]){
+	    else if (0x4D == get(JAPP.ENDIAN.offset(0)) && 0x4D == get(JAPP.ENDIAN.offset(1))){
 
-		this.endian = Endian.MM;
+		this.endian = Endian.BE;
 	    }
 	    else {
-		throw new IllegalStateException("EXIF format violation at TIFF.ENDIAN.");
+		throw new IllegalStateException("EXIF format violation at JAPP.ENDIAN.");
 	    }
-	    /*
-	     */
-	    if (42 == this.endian.int16(data,TIFF.VALIDATION.offset)){
-		/*
-		 */
-		this.ifd_0 = this.endian.int32(data,TIFF.OFS_IFD_0.offset);
 
-	    }
-	    else {
-		throw new IllegalStateException("EXIF format violation at TIFF.VALIDATION.");
-	    }
+	    int tw_o = JAPP.ENDIAN.offset;
+	    int tw_l = (length()-JAPP.ENDIAN.offset);
+
+	    System.err.printf("EXIF 0x%08x TIFF %s (0x%04x, 0x%04x)%n",this.offset,this.endian,tw_o,tw_l);
+
+	    this.tiff = new TIFF(this.endian, this, new Window(tw_o,tw_l));
+
 	}
 	else {
-	    throw new IllegalStateException("EXIF format violation at APPT.NUL.");
+	    throw new IllegalStateException("EXIF format violation at JAPP.NUL.");
 	}
     }
-
 
     public String toString(){
 
 	return "Exif "+super.toString();
     }
+    public void println(PrintStream out){
+
+	out.printf("%6d %20s%n",this.offset,this);
+
+	this.tiff.println(out);
+    }
+
 }

@@ -17,14 +17,19 @@
  */
 package syntelos.jpeg;
 
+import syntelos.rabu.Endian;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
 /**
- * 
+ * Big endian data buffer.
  */
-public abstract class Component {
+public abstract class Component
+    extends syntelos.rabu.RandomAccessData
+    implements syntelos.rabu.Component
+{
 
     /**
      * Input location of component before reading.
@@ -36,7 +41,7 @@ public abstract class Component {
      * Copy constructor
      */
     protected Component(Component copy){
-	super();
+	super(Endian.BE,copy);
 
 	this.offset = copy.offset;
     }
@@ -45,15 +50,12 @@ public abstract class Component {
      * therefore it declares no exception.
      */
     Component(OffsetInputStream in){
-	super();
+	super(Endian.BE);
 
 	this.offset = in.offset;
     }
 
 
-    public abstract int length();
-
-    public abstract byte get(int x);
     /**
      * Has an <code>APP</code> marker.
      */
@@ -63,13 +65,24 @@ public abstract class Component {
      */
     public abstract String tag();
 
-    public abstract long write(OutputStream o) throws IOException;
+    public int write(OutputStream out)
+	throws IOException
+    {
+	super.reset();
 
-    public abstract void println(PrintStream p);
-
-    public abstract void print_p(PrintStream out, int start, int end);
-
-    public abstract void print_n(PrintStream out, int start, int end);
+	return super.copy(out);
+    }
 
     public abstract String toString();
+
+    /**
+     * The default {@link syntelos.rabu.BufferPrinter buffer print} is
+     * an octet dump.  This method may be overridden to print the
+     * string returned by {@link #toString()}, or to print a list of
+     * children.
+     */
+    public void println(PrintStream out){
+
+	out.printf("%6d %20s%n",this.offset,this);
+    }
 }

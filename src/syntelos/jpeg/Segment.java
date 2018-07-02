@@ -44,11 +44,6 @@ public class Segment
      */
     protected int length;
     /**
-     * Data payload binary, not including the {@link #stride "count"}
-     * size of the data payload binary.
-     */
-    protected byte[] data;
-    /**
      * 
      */
     private transient String _tag;
@@ -62,7 +57,6 @@ public class Segment
 	this.marker = copy.marker;
 	this.stride = copy.stride;
 	this.length = copy.length;
-	this.data = copy.data;
     }
     /**
      * Used from {@link JPEG} to read the marker type, segment length,
@@ -83,7 +77,6 @@ public class Segment
 	    if (this.marker.solitary){
 		this.stride = 0;
 		this.length = 0;
-		this.data = new byte[0];
 	    }
 	    else {
 		long start = in.offset;
@@ -93,28 +86,18 @@ public class Segment
 		if (0 == count){
 		    this.stride = 0;
 		    this.length = 0;
-		    this.data = new byte[0];
 		}
 		else if (0 < count && 0xFFFF >= count){
 		    this.stride = count;
 		    this.length = (count-2);
 
-		    byte[] data = new byte[length];
-		    {
-			int ofs = 0;
-			int rem = length;
-			int red = 0;
-			while (0 < rem && -1 < (red = in.read(data,ofs,rem))){
+		    if (!super.copy(in,length)){
 
-			    ofs += red;
-			    rem -= red;
-			}
-
-			if (0 < rem){
-			    throw new IllegalStateException(String.format("Failed to complete read '%d/%d' from '(%d - %d)/%d'",rem,length,in.offset,start,(in.length-1)));
-			}
+			throw new IllegalStateException("Failed to complete read.");
 		    }
-		    this.data = data;
+		    else {
+			super.reset();
+		    }
 		}
 		else {
 		    throw new IllegalStateException(String.format("Invalid count '%d'",count));
@@ -136,12 +119,6 @@ public class Segment
     public Marker marker(){
 	return this.marker;
     }
-    public int length(){
-	return this.length;
-    }
-    public byte get(int x){
-	return this.data[x];
-    }
     public boolean is_app(){
 
 	return this.marker.is_app();
@@ -154,109 +131,35 @@ public class Segment
 	}
 	else if (this.marker.is_app()){
 
-	    ByteArrayOutputStream buf = new ByteArrayOutputStream();
-	    for (int cc = 0; cc < this.length; cc++){
+	    int z = this.indexOf(0);
+	    if (0 < z){
 
-		int ch = (this.data[cc] & 0xFF);
-		if (0 == ch){
-		    break;
-		}
-		else {
-
-		    buf.write(ch);
-		}
-	    }
-
-	    byte[] b = buf.toByteArray();
-	    if (null != b){
-
-		this._tag = new String(b,0,0,b.length);
+		this._tag = this.substring(0,z);
 
 		return this._tag;
 	    }
 	}
 	return null;
     }
-    public long write(OutputStream out)
+    public int write(OutputStream out)
 	throws IOException
     {
 	out.write(0xFF);
 	out.write(this.marker.code);
 	if (!this.marker.solitary){
-	    int a = ((this.stride & 0xFF00)>>8);
-	    int b = (this.stride & 0xFF);
-	    out.write(a);
-	    out.write(b);
-	    out.write(this.data,0,this.length);
+	    /*
+	     * (big-endian uint16 segment size)
+	     */
+	    super.uint16(this.stride,out);
+	    /*
+	     * (segment payload data)
+	     */
+	    super.copy(out);
 
 	    return (2+this.stride);
 	}
 	else {
 	    return (2);
-	}
-    }
-    public void println(PrintStream out){
-
-	out.println(this);
-    }
-    public void print_p(PrintStream out, int start, int end){
-
-	if (-1 < start && start < end){
-
-	    for (int cc = start; cc < end; cc++){
-
-		byte b = this.data[cc];
-
-		if (0x20 < b && 0x7f > b){
-
-		    out.printf(" %2c",b);
-		}
-		else {
-
-		    out.printf(" %02X",b);
-		}
-	    }
-	    out.println();
-	}
-	else {
-
-	    for (int cc = 0; cc < this.length; cc++){
-
-		byte b = this.data[cc];
-
-		if (0x20 < b && 0x7f > b){
-
-		    out.printf(" %2c",b);
-		}
-		else {
-
-		    out.printf(" %02X",b);
-		}
-	    }
-	    out.println();
-	}
-    }
-    public void print_n(PrintStream out, int start, int end){
-
-	if (-1 < start && start < end){
-
-	    for (int cc = start; cc < end; cc++){
-
-		byte b = this.data[cc];
-
-		out.printf(" %02X",b);
-	    }
-	    out.println();
-	}
-	else {
-
-	    for (int cc = 0; cc < this.length; cc++){
-
-		byte b = this.data[cc];
-
-		out.printf(" %02X",b);
-	    }
-	    out.println();
 	}
     }
     public String toString(){
