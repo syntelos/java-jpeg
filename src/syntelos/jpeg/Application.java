@@ -17,8 +17,13 @@
  */
 package syntelos.jpeg;
 
+import syntelos.rabu.Printer;
+import syntelos.rabu.RandomAccessBuffer;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.io.PrintStream;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -116,5 +121,19 @@ public class Application
 	if (!this.marker.is_app()){
 	    throw new IllegalStateException();
 	}
+    }
+
+
+    public boolean hasApplicationBuffer(){
+	return false;
+    }
+    public <B extends RandomAccessBuffer> List<B> getApplicationBuffer(){
+	throw new UnsupportedOperationException();
+    }
+    public void printApplicationBuffer(PrintStream out){
+	throw new UnsupportedOperationException();
+    }
+    public void printApplicationBuffer(Printer p, PrintStream out){
+	throw new UnsupportedOperationException();
     }
 }

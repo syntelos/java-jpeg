@@ -165,7 +165,6 @@ public class TIFF
 	return re;
     }
 
-
     public String toString(){
 
 	return String.format("TIFF %s 0x%08X",this.endian,this.length());

@@ -17,6 +17,9 @@
  */
 package syntelos.jpeg;
 
+import syntelos.rabu.Endian;
+import syntelos.rabu.Printer;
+
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.InputStream;
@@ -63,10 +66,10 @@ public class Segment
      * and segment body.  The segment marker prefix
      * <code>(0xff)</code> is consumed by {@link JPEG}.
      */
-    Segment(OffsetInputStream in)
+    Segment(Printer.Configuration c, Endian e, OffsetInputStream in)
 	throws IOException
     {
-	super(in);
+	super(c,e,in);
 
 	int ch = in.read();
 

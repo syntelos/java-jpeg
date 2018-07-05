@@ -20,9 +20,13 @@ package syntelos.jpeg.app;
 import syntelos.jpeg.Segment;
 import syntelos.jpeg.tiff.TIFF;
 import syntelos.rabu.Endian;
+import syntelos.rabu.Printer;
+import syntelos.rabu.RandomAccessBuffer;
 import syntelos.rabu.Window;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -83,7 +87,7 @@ public class Exif
 	    int tw_o = JAPP.ENDIAN.offset;
 	    int tw_l = (length()-JAPP.ENDIAN.offset);
 
-	    System.err.printf("EXIF 0x%08x TIFF %s (0x%04x, 0x%04x)%n",this.offset,this.endian,tw_o,tw_l);
+	    System.err.printf("EXIF 0x%08x TIFF %s [0x%04x, 0x%04x]%n",this.offset,this.endian,tw_o,tw_l);
 
 	    this.tiff = new TIFF(this.endian, this, new Window(tw_o,tw_l));
 
@@ -103,5 +107,23 @@ public class Exif
 
 	this.tiff.println(out);
     }
+    public boolean hasApplicationBuffer(){
+	return true;
+    }
+    public List<TIFF> getApplicationBuffer(){
 
+	ArrayList<TIFF> list = new ArrayList();
+
+	list.add(this.tiff);
+
+	return list;
+    }
+    public void printApplicationBuffer(PrintStream out){
+
+	this.tiff.print(out);
+    }
+    public void printApplicationBuffer(Printer p, PrintStream out){
+
+	p.print(this.tiff,out);
+    }
 }

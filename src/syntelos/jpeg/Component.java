@@ -18,6 +18,7 @@
 package syntelos.jpeg;
 
 import syntelos.rabu.Endian;
+import syntelos.rabu.Printer;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -41,7 +42,7 @@ public abstract class Component
      * Copy constructor
      */
     protected Component(Component copy){
-	super(Endian.BE,copy);
+	super(copy);
 
 	this.offset = copy.offset;
     }
@@ -49,8 +50,8 @@ public abstract class Component
      * This constructor shall not read from the input stream,
      * therefore it declares no exception.
      */
-    Component(OffsetInputStream in){
-	super(Endian.BE);
+    Component(Printer.Configuration c, Endian e, OffsetInputStream in){
+	super(c,e);
 
 	this.offset = in.offset;
     }

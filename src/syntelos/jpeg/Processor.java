@@ -40,7 +40,7 @@ public final class Processor {
 	 */
 	public boolean lock;
 	/**
-	 * Input is valid
+	 * JPEG (input) is valid
 	 */
 	public final boolean valid;
 
@@ -76,6 +76,7 @@ public final class Processor {
 	p      (Type.Literal),
 	q      (Type.Literal),
 	w      (Type.Literal),
+	x      (Type.Literal),
 	help   (Type.Figurative),
 	cursor (Type.Figurative),
 	end    (Type.Figurative);
@@ -378,7 +379,7 @@ public final class Processor {
 
 		    Component c = this.jpeg.get(st.cursor);
 
-		    out.printf("%6d %20s%n",st.cursor,c);
+		    c.println(out);
 		}
 		return true;
 	    case q:
@@ -403,6 +404,26 @@ public final class Processor {
 		    err.println("Unable to output from invalid input state.");
 		}
 		return true;
+	    case x:
+		{
+		    Component c = this.jpeg.get(st.cursor);
+		    if (c instanceof Application){
+
+			Application a = (Application)c;
+
+			if (a.hasApplicationBuffer()){
+
+			    a.printApplicationBuffer(out);
+			}
+			else {
+			    c.println(out);
+			}
+		    }
+		    else {
+			c.println(out);
+		    }
+		}
+		return true;
 	    case help:
 		out.println("Help");
 		out.println();
@@ -414,6 +435,7 @@ public final class Processor {
 		out.printf(HELP,"#,#p","Print segment range.");
 		out.printf(HELP,"#,#n","Print segment range with indeces.");
 		out.printf(HELP,"w","Overwrite input file.");
+		out.printf(HELP,"x","Print application buffer.");
 		out.printf(HELP,"q","Quit.");
 		out.println();
 		return true;

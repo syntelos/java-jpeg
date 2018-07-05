@@ -91,7 +91,7 @@ public class IFD
 	    int fx = fld.indexOf(tagset);
 	    if (-1 < fx){
 
-		valueset[vx++] = fld.int32();
+		valueset[vx++] = fld.intValue();
 		if (vx >= tn){
 		    break;
 		}

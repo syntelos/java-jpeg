@@ -17,6 +17,9 @@
  */
 package syntelos.jpeg;
 
+import syntelos.rabu.Endian;
+import syntelos.rabu.Printer;
+
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.File;
@@ -34,8 +37,15 @@ public final class JPEG
     extends java.util.ArrayList<Component>
 {
 
+    public final Printer.Configuration pc;
+
+    public final Endian en;
+
+
     public JPEG(){
 	super();
+	pc = new Printer.Configuration(Printer.Offset.HEX,Printer.Content.ASC);
+	en = Endian.BE;
     }
 
 
@@ -46,7 +56,7 @@ public final class JPEG
 	    /*
 	     * SEGMENTS
 	     */
-	    Segment s = new Segment(in);
+	    Segment s = new Segment(pc,en,in);
 
 	    if (s.is_app()){
 
@@ -73,11 +83,11 @@ public final class JPEG
 	     */
 	    if (Marker.SOS == s.marker){
 
-		Scan scan = new Scan(in);
+		Scan scan = new Scan(pc,en,in);
 
 		this.add(scan);
 
-		Segment eoi = new Segment(in);
+		Segment eoi = new Segment(pc,en,in);
 
 		this.add(eoi);
 

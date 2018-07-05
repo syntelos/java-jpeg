@@ -25,7 +25,7 @@ import java.io.PrintStream;
  * 
  */
 public class Field 
-    extends java.lang.Object
+    extends java.lang.Number
     implements syntelos.rabu.Component
 {
     /**
@@ -46,9 +46,11 @@ public class Field
 	DOUBLE    (12);
 
 	public final int code;
+	public final int length;
 
 	Type(int code){
 	    this.code = code;
+	    this.length = count(code);
 	}
 
 	public final static Type valueOf(int code){
@@ -81,6 +83,40 @@ public class Field
 		throw new IllegalArgumentException(String.format("Unrecognized field type code 0x%02X",code));
 	    }
 	}
+	/**
+	 * @return Length of type: greater than zero for static type
+	 * formats, negative one for variable ASCII character string.
+	 */
+	public final static int count(int code){
+	    switch(code){
+	    case 1:
+		return 1;
+	    case 2:
+		return 1;
+	    case 3:
+		return 2;
+	    case 4:
+		return 4;
+	    case 5:
+		return 8;
+	    case 6:
+		return 1;
+	    case 7:
+		return 0;
+	    case 8:
+		return 2;
+	    case 9:
+		return 4;
+	    case 10:
+		return 8;
+	    case 11:
+		return 4;
+	    case 12:
+		return 8;
+	    default:
+		throw new IllegalArgumentException(String.format("Unrecognized field type code 0x%02X",code));
+	    }
+	}
     }
 
 
@@ -88,9 +124,13 @@ public class Field
     public final Tag.Table table;
     public final Tag tag;
     public final Field.Type type;
-
-    public int count;
-    public byte[] source;
+    /**
+     * Data coordinates
+     */
+    public int offset, length;
+    /**
+     * Data value
+     */
     public Object value;
 
 
@@ -108,12 +148,41 @@ public class Field
 	    this.type = Field.Type.valueOf(i_typ);
 	}
 	int i_cnt = r.uint16(of); of += 2;
-	{
-	    this.count = i_cnt;
-	}
-	this.source = r.copy(of,4);
-	{
-	    this.value = this.source;
+
+	/*
+	 * data[] = r.copy(of,4)
+	 */
+	this.offset = r.sint32(of);
+	this.length = (i_cnt*this.type.length);
+
+	switch(this.type){
+	case ASCII:
+
+	    // this.value = r.substring(offset,length);
+
+	    this.value = r.copy(of,4);
+	    break;
+	case BYTE:
+	    this.value = new Integer(r.uint8(of+3));
+	    break;
+	case SBYTE:
+	    this.value = new Byte((byte)r.uint8(of+3));
+	    break;
+	case SHORT:
+	    this.value = new Integer(r.uint16(of+2));
+	    break;
+	case SSHORT:
+	    this.value = new Short((short)r.uint16(of+2)); /* [TODO] sign extension */
+	    break;
+	case LONG:
+	case SLONG:
+	    this.value = new Integer(r.sint32(of)); /* [TODO] sign extension */
+	    break;
+	case FLOAT:
+	    this.value = new Float(Float.intBitsToFloat(r.sint32(of)));
+	    break;
+	default:
+	    break;
 	}
     }
 
@@ -129,44 +198,62 @@ public class Field
 	}
 	return -1;
     }
-    public int int16(){
-	switch(this.type){
-	case SHORT:
-	case SSHORT:
-	    /*
-	     * [TODO] REVIEW: {a,b,0,0}/{0,0,a,b} interpretation of value
-	     */
-	    return this.endian.uint16(this.source,0);
+    public int intValue(){
+	if (this.value instanceof Number){
 
-	default:
-	    throw new IllegalStateException(this.type.name());
+	    return ((Number)this.value).intValue();
+	}
+	else {
+	    return 0;
 	}
     }
-    public int int32(){
-	switch(this.type){
-	case LONG:
-	case SLONG:
-	    return this.endian.sint32(this.source,0);
+    public long longValue(){
+	if (this.value instanceof Number){
 
-	default:
-	    throw new IllegalStateException(this.type.name());
+	    return ((Number)this.value).longValue();
+	}
+	else {
+	    return 0;
+	}
+    }
+    public float floatValue(){
+	if (this.value instanceof Number){
+
+	    return ((Number)this.value).floatValue();
+	}
+	else {
+	    return 0;
+	}
+    }
+    public double doubleValue(){
+	if (this.value instanceof Number){
+
+	    return ((Number)this.value).doubleValue();
+	}
+	else {
+	    return 0;
 	}
     }
     public void println(PrintStream out){
 
-	out.printf("%10s %10s %10s %10d ",this.table,this.tag,this.type,this.count);
+	out.printf("%10s %10s %10s [0x%08x, 0x%08x] ",this.table,this.tag,this.type,this.offset,this.length);
 
 	if (this.value instanceof byte[]){
-	    byte[] bv = (byte[])value;
-	    int a = (bv[0] & 0xFF);
-	    int b = (bv[1] & 0xFF);
-	    int c = (bv[2] & 0xFF);
-	    int d = (bv[3] & 0xFF);
+
+	    byte[] bary = (byte[])this.value;
+	    int a = (bary[0] & 0xFF);
+	    int b = (bary[1] & 0xFF);
+	    int c = (bary[2] & 0xFF);
+	    int d = (bary[3] & 0xFF);
 
 	    out.printf("{0x%02X, 0x%02X, 0x%02X, 0x%02X}%n",a,b,c,d);
 	}
+	else if (null != this.value){
+
+	    out.printf("{%s}%n",this.value);
+	}
 	else {
-	    out.println(this.value);
+	    out.println();
 	}
     }
 }

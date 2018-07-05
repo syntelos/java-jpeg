@@ -17,6 +17,9 @@
  */
 package syntelos.jpeg;
 
+import syntelos.rabu.Endian;
+import syntelos.rabu.Printer;
+
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -37,10 +40,10 @@ public final class Scan
     /**
      * 
      */
-    Scan(OffsetInputStream in)
+    Scan(Printer.Configuration c, Endian e, OffsetInputStream in)
 	throws IOException
     {
-	super(in);
+	super(c,e,in);
 
 	super.optimism(in.available());
 
