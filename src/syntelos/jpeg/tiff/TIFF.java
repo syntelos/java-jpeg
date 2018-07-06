@@ -181,6 +181,21 @@ public class TIFF
 	    ifd.println(out);
 	}
     }
+    public void println(int depth, PrintStream out){
+
+	for (int d = 0; d < depth; d++){
+
+	    out.write('\t');
+	}
+	out.println(this);
+
+	int cd = (depth+1);
+
+	for (IFD ifd: this.ifdl){
+
+	    ifd.println(cd,out);
+	}
+    }
 
 
     public final static int[] add(int[] a, int[] b){

@@ -141,7 +141,7 @@ public final class Main {
 		}
 		else if (nominal){
 
-		    jpeg.println(out);
+		    jpeg.println(0,out);
 
 		    System.exit(0);
 		}

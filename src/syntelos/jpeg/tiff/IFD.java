@@ -60,12 +60,34 @@ public class IFD
 
     public void println(PrintStream out){
 
-	out.printf("IFD (%s) this: 0x%04X, count: %d, next: 0x%04X%n",this.table,this.offset,this.size(),this.next);
+	out.println(this);
 
 	for (Field fld: this){
 
 	    fld.println(out);
 	}
+    }
+    public void println(int depth, PrintStream out){
+
+	for (int i = 0; i < depth; i++){
+
+	    out.write('\t');
+	}
+	out.println(this);
+
+	int cd = (depth+1);
+
+	for (Field fld: this){
+
+	    fld.println(cd,out);
+	}
+    }
+    public String toString(){
+	StringBuilder string = new StringBuilder();
+	{
+	    string.append(String.format("IFD (%s) this: 0x%04X, count: %d, next: 0x%04X",this.table,this.offset,this.size(),this.next));
+	}
+	return string.toString();
     }
     public int[] valueOf(Tag... tagset){
 	/*

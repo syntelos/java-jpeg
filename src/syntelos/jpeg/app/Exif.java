@@ -103,8 +103,17 @@ public class Exif
     public void println(PrintStream out){
 
 	out.printf("%6d %20s%n",this.offset,this);
+    }
+    public void println(int d, PrintStream out){
 
-	this.tiff.println(out);
+	for (int cc = 0; cc < d; cc++){
+
+	    out.write('\t');
+	}
+
+	out.printf("%6d %20s%n",this.offset,this);
+
+	this.tiff.println((d+1),out);
     }
     public boolean hasApplicationBuffer(){
 	return true;

@@ -86,4 +86,12 @@ public abstract class Component
 
 	out.printf("%6d %20s%n",this.offset,this);
     }
+    public void println(int depth, PrintStream out){
+
+	for (int i = 0; i < depth; i++){
+
+	    out.print(' ');
+	}
+	out.printf("%6d %20s%n",this.offset,this);
+    }
 }

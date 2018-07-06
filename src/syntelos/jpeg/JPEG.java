@@ -35,6 +35,7 @@ import static java.lang.System.err;
  */
 public final class JPEG
     extends java.util.ArrayList<Component>
+    implements syntelos.rabu.Component
 {
 
     public final Printer.Configuration pc;
@@ -116,7 +117,28 @@ public final class JPEG
 	int cc = 0;
 	for (Component c : this){
 
-	    out.printf("%6d %20s%n",cc,c);
+	    out.printf("%6d ",cc);
+
+	    c.println(out);
+
+	    cc += 1;
+	}
+    }
+    public void println(int depth, PrintStream out){
+
+	int cc = 0, cd = (depth+1);
+
+	for (Component c : this){
+
+	    for (int d = 0; d < depth; d++){
+
+		out.write('\t');
+	    }
+
+	    out.printf("%6d ",cc);
+
+	    c.println(cd,out);
+
 	    cc += 1;
 	}
     }

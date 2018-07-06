@@ -234,24 +234,36 @@ public class Field
     }
     public void println(PrintStream out){
 
-	out.printf("%10s %10s %10s [0x%04x, 0x%04x] ",this.table,this.tag,this.type,this.offset,this.length);
+	out.println(this);
+    }
+    public void println(int depth, PrintStream out){
 
-	if (this.value instanceof byte[]){
+	for (int i = 0; i < depth; i++){
 
-	    byte[] bary = (byte[])this.value;
-	    int a = (bary[0] & 0xFF);
-	    int b = (bary[1] & 0xFF);
-	    int c = (bary[2] & 0xFF);
-	    int d = (bary[3] & 0xFF);
-
-	    out.printf("{0x%02X, 0x%02X, 0x%02X, 0x%02X}%n",a,b,c,d);
+	    out.write('\t');
 	}
-	else if (null != this.value){
+	out.println(this);
+    }
+    public String toString(){
+	StringBuilder string = new StringBuilder();
+	{
+	    string.append(String.format("%10s %20s [0x%04x, 0x%04x] ",this.type,this.tag,this.offset,this.length));
 
-	    out.printf("{%s}%n",this.value);
+	    if (this.value instanceof byte[]){
+
+		byte[] bary = (byte[])this.value;
+		int a = (bary[0] & 0xFF);
+		int b = (bary[1] & 0xFF);
+		int c = (bary[2] & 0xFF);
+		int d = (bary[3] & 0xFF);
+
+		string.append(String.format("{0x%02X, 0x%02X, 0x%02X, 0x%02X}",a,b,c,d));
+	    }
+	    else if (null != this.value){
+
+		string.append(String.format("{%s}",this.value));
+	    }
 	}
-	else {
-	    out.println();
-	}
+	return string.toString();
     }
 }

@@ -70,22 +70,26 @@ public final class Processor {
      * A little "ed"-style interaction language.
      */
     public static enum Operator {
-	c      (Type.Literal),
-	i      (Type.Literal),
-	l      (Type.Literal),
-	p      (Type.Literal),
-	q      (Type.Literal),
-	w      (Type.Literal),
-	x      (Type.Literal),
-	help   (Type.Figurative),
-	cursor (Type.Figurative),
-	end    (Type.Figurative);
+	help   (Type.Figurative,"?","This message."),
+	c      (Type.Literal,"c","Print (cursor/count) in JPEG."),
+	i      (Type.Literal,"i","Input status."),
+	l      (Type.Literal,"l","Cursor lock/unlock."),
+	p      (Type.Literal,"p","Print segment at cursor or range."),
+	q      (Type.Literal,"q","Quit."),
+	w      (Type.Literal,"w","Overwrite input file."),
+	x      (Type.Literal,"x","Print buffer at cursor."),
+	end    (Type.Figurative,"$","Range terminal, as in '0,$p'."),
+	cursor (Type.Figurative);
 
 
 	public final Type type;
 
-	Operator(Type type){
+	public final String[] description;
+
+
+	Operator(Type type, String... desc){
 	    this.type = type;
+	    this.description = desc;
 	}
 
 
@@ -348,38 +352,21 @@ public final class Processor {
 		out.printf("%6d/%6d%6s%n",st.cursor,this.jpeg.size(),st.lock);
 		return true;
 	    case p:
-		if (st.lock){
 
-		    if (-1 < this.start && this.start < this.end){
-
-			for (int cc = this.start; cc < this.end; cc++){
-
-			    Component c = this.jpeg.get(cc);
-
-			    c.println(out);
-			}
-		    }
-		    else {
-
-			Component c = this.jpeg.get(st.cursor);
-
-			c.println(out);
-		    }
-		}
-		else if (-1 < this.start && this.start < this.end){
+		if (-1 < this.start && this.start < this.end){
 
 		    for (int cc = this.start; cc < this.end; cc++){
 
 			Component c = this.jpeg.get(cc);
 
-			out.printf("%6d %20s%n",cc,c);
+			c.println(0,out);
 		    }
 		}
 		else {
 
 		    Component c = this.jpeg.get(st.cursor);
 
-		    c.println(out);
+		    c.println(0,out);
 		}
 		return true;
 	    case q:
@@ -416,27 +403,25 @@ public final class Processor {
 			    a.printApplicationBuffer(out);
 			}
 			else {
-			    c.println(out);
+			    c.println(0,out);
 			}
 		    }
 		    else {
-			c.println(out);
+			c.println(0,out);
 		    }
 		}
 		return true;
 	    case help:
 		out.println("Help");
 		out.println();
-		out.printf(HELP,"?","This message.");
-		out.printf(HELP,"#","Set cursor by index number '#' (from zero).");
-		out.printf(HELP,"c","Print (cursor/count) in JPEG.");
-		out.printf(HELP,"p","Print segment at cursor.");
-		out.printf(HELP,"n","Print segment at cursor with index.");
-		out.printf(HELP,"#,#p","Print segment range.");
-		out.printf(HELP,"#,#n","Print segment range with indeces.");
-		out.printf(HELP,"w","Overwrite input file.");
-		out.printf(HELP,"x","Print application buffer.");
-		out.printf(HELP,"q","Quit.");
+		for (Operator op : Operator.values()){
+
+		    String[] text = op.description;
+		    if (null != text && 2 == text.length){
+
+			out.printf(HELP,text[0],text[1]);
+		    }
+		}
 		out.println();
 		return true;
 	    case cursor:
