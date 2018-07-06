@@ -5,3 +5,6 @@ segment length bytes within the segment length figure.
 The second trick was in realizing that the image scan did not have a marker
 structure, but was delimited by markers.
 
+In reading TIFF structure of EXIF APP segment, offsets are found in UINT16 
+(see syntelos/jpeg/tiff/Field.java:155 this.offset = r.unit16(of+2)).
+
