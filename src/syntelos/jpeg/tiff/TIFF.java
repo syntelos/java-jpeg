@@ -79,32 +79,30 @@ public class TIFF
 
 		    switch(ix){
 		    case 0:
-			System.out.printf("READ IFDP (%s) 0x%04X%n","EXIFIFDPointer",tfof);
 
 			ifd_x = new IFD(this,Tag.Table.EXIF,tfof);
 			ifdl.add(ifd_x);
 			break;
 		    case 1:
-			System.out.printf("READ IFDP (%s) 0x%04X%n","GPSInfoIFDPointer",tfof);
 
 			ifd_g = new IFD(this,Tag.Table.GPS,tfof);
 			ifdl.add(ifd_g);
 			break;
 		    default:
-			System.out.printf("READ IFDP (%s) 0x%04X%n","?",tfof);
+			System.err.printf("WARNING IFDP (%s) 0x%04X%n","?",tfof);
 			break;
 		    }
 		}
 		else if (-1 < tfof){
 		    switch(ix){
 		    case 0:
-			System.out.printf("ERROR IFDP (%s) 0x%04X%n","EXIFIFDPointer",tfof);
+			System.err.printf("ERROR IFDP (%s) 0x%04X%n","EXIFIFDPointer",tfof);
 			break;
 		    case 1:
-			System.out.printf("ERROR IFDP (%s) 0x%04X%n","GPSInfoIFDPointer",tfof);
+			System.err.printf("ERROR IFDP (%s) 0x%04X%n","GPSInfoIFDPointer",tfof);
 			break;
 		    default:
-			System.out.printf("ERROR IFDP (%s) 0x%04X%n","?",tfof);
+			System.err.printf("ERROR IFDP (%s) 0x%04X%n","?",tfof);
 			break;
 		    }
 		}
@@ -124,23 +122,22 @@ public class TIFF
 
 			switch(ix){
 			case 0:
-			    System.out.printf("READ IFDP (%s) 0x%04X%n","InteroperabilityIFDPointer",tfof);
 
 			    ifd_i = new IFD(this,Tag.Table.INTR,tfof);
 			    ifdl.add(ifd_i);
 			    break;
 			default:
-			    System.out.printf("READ IFDP (%s) 0x%04X%n","?",tfof);
+			    System.err.printf("WARNING IFDP (%s) 0x%04X%n","?",tfof);
 			    break;
 			}
 		    }
 		    else if (-1 < tfof){
 			switch(ix){
 			case 0:
-			    System.out.printf("ERROR IFDP (%s) 0x%04X%n","InteroperabilityIFDPointer",tfof);
+			    System.err.printf("ERROR IFDP (%s) 0x%04X%n","InteroperabilityIFDPointer",tfof);
 			    break;
 			default:
-			    System.out.printf("ERROR IFDP (%s) 0x%04X%n","?",tfof);
+			    System.err.printf("ERROR IFDP (%s) 0x%04X%n","?",tfof);
 			    break;
 			}
 		    }

@@ -87,7 +87,6 @@ public class Exif
 	    int tw_o = JAPP.ENDIAN.offset;
 	    int tw_l = (length()-JAPP.ENDIAN.offset);
 
-	    System.err.printf("EXIF 0x%08x TIFF %s [0x%04x, 0x%04x]%n",this.offset,this.endian,tw_o,tw_l);
 
 	    this.tiff = new TIFF(this.endian, this, new Window(tw_o,tw_l));
 

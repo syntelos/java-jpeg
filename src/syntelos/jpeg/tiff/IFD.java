@@ -55,8 +55,6 @@ public class IFD
 	}
 
 	this.next = r.sint32(ofs);
-
-	System.out.printf("IFD (%s) this: 0x%04X, count: %d, next: 0x%04X%n",this.table,this.offset,count,this.next);
     }
 
 

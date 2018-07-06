@@ -60,19 +60,14 @@ public final class JPEG
 
 	    if (s.is_app()){
 
-		System.err.printf("APP ? %s%n",s.tag());
-
 		Application a = Application.instantiate(s);
 		if (null != a){
 
-		    System.err.printf("APP + %s%n",a);
-
-		    this.add(a);
+		    this.add(a); //+(A)
 		}
 		else {
-		    System.err.printf("APP - %s%n",s.tag());
 
-		    this.add(s);
+		    this.add(s); //+(S)
 		}
 	    }
 	    else {
