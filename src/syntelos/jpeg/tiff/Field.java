@@ -152,15 +152,13 @@ public class Field
 	/*
 	 * data[] = r.copy(of,4)
 	 */
-	this.offset = r.sint32(of);
+	this.offset = r.uint16(of+2); of += 2;
 	this.length = (i_cnt*this.type.length);
 
 	switch(this.type){
 	case ASCII:
 
-	    // this.value = r.substring(offset,length);
-
-	    this.value = r.copy(of,4);
+	    this.value = r.substring(offset,length);
 	    break;
 	case BYTE:
 	    this.value = new Integer(r.uint8(of+3));
@@ -236,7 +234,7 @@ public class Field
     }
     public void println(PrintStream out){
 
-	out.printf("%10s %10s %10s [0x%08x, 0x%08x] ",this.table,this.tag,this.type,this.offset,this.length);
+	out.printf("%10s %10s %10s [0x%04x, 0x%04x] ",this.table,this.tag,this.type,this.offset,this.length);
 
 	if (this.value instanceof byte[]){
 

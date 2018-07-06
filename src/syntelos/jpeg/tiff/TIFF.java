@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
+ * Used by {@link syntelos.jpeg.app.Exif APP/EXIF} with sixteen bit offsets.
  */
 public class TIFF
     extends RandomAccessData
