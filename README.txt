@@ -9,4 +9,9 @@ Status
 
     Work in progress: reads JPEG/EXIF on my SAMSUNG-SM-J120A.
 
+References
+
+    Build https://github.com/syntelos/sh-javab
+
+    Library https://github.com/syntelos/java-rabu
 
